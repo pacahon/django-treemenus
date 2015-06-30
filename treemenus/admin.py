@@ -129,10 +129,10 @@ class MenuAdmin(admin.ModelAdmin):
             
             my_urls += patterns('',
                                 url(r'^item_changelist/$',
-                                    RedirectView.as_view(url='/'),
+                                    RedirectView.as_view(url='/', permanent=True),
                                     name='treemenus_menuitem_changelist'),
                                 url(r'^item_add/$',
-                                    RedirectView.as_view(url='/'),
+                                    RedirectView.as_view(url='/', permanent=True),
                                     name='treemenus_menuitem_add'),
                                 url(r'^item_history/(?P<pk>[-\w]+)/$',
                                     self.menu_item_redirect,
