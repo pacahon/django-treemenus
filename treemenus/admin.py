@@ -7,7 +7,10 @@ try:
 except ImportError:  # Django < 1.4
     from django.conf.urls.defaults import patterns, url
 from django.contrib import admin
-from django.contrib.admin.utils import unquote
+try:
+    from django.contrib.admin.utils import unquote
+except ImportError:
+    from django.contrib.admin.util import unquote
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, Http404
 from django.http import HttpResponsePermanentRedirect
@@ -106,20 +109,20 @@ class MenuAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         urls = super(MenuAdmin, self).get_urls()
-        my_urls = patterns('',
-                           (r'^(?P<menu_pk>[-\w]+)/items/add/$',
-                            self.admin_site.admin_view(self.add_menu_item)),
-                           (r'^(?P<menu_pk>[-\w]+)/items/(?P<menu_item_pk>[-\w]+)/$',
-                            self.admin_site.admin_view(self.edit_menu_item)),
-                           (r'^(?P<menu_pk>[-\w]+)/items/(?P<menu_item_pk>[-\w]+)/delete/$',
-                            self.admin_site.admin_view(self.delete_menu_item)),
-                           (r'^(?P<menu_pk>[-\w]+)/items/(?P<menu_item_pk>[-\w]+)/history/$',
-                            self.admin_site.admin_view(self.history_menu_item)),
-                           (r'^(?P<menu_pk>[-\w]+)/items/(?P<menu_item_pk>[-\w]+)/move_up/$',
-                            self.admin_site.admin_view(self.move_up_item)),
-                           (r'^(?P<menu_pk>[-\w]+)/items/(?P<menu_item_pk>[-\w]+)/move_down/$',
-                            self.admin_site.admin_view(self.move_down_item)),
-                           )
+        my_urls = [
+            url(r'^(?P<menu_pk>[-\w]+)/change/items/add/$',
+            self.admin_site.admin_view(self.add_menu_item)),
+            url(r'^(?P<menu_pk>[-\w]+)/change/items/(?P<menu_item_pk>[-\w]+)/change/$',
+            self.admin_site.admin_view(self.edit_menu_item)),
+            url(r'^(?P<menu_pk>[-\w]+)/change/items/(?P<menu_item_pk>[-\w]+)/delete/$',
+            self.admin_site.admin_view(self.delete_menu_item)),
+            url(r'^(?P<menu_pk>[-\w]+)/change/items/(?P<menu_item_pk>[-\w]+)/history/$',
+            self.admin_site.admin_view(self.history_menu_item)),
+            url(r'^(?P<menu_pk>[-\w]+)/change/items/(?P<menu_item_pk>[-\w]+)/move_up/$',
+            self.admin_site.admin_view(self.move_up_item)),
+            url(r'^(?P<menu_pk>[-\w]+)/change/items/(?P<menu_item_pk>[-\w]+)/move_down/$',
+            self.admin_site.admin_view(self.move_down_item)),
+        ]
 
         if django.VERSION >= (1, 4):
             # Dummy named URLs to satisfy reversing the reversing requirements
@@ -127,22 +130,22 @@ class MenuAdmin(admin.ModelAdmin):
             # just needs to exist so that it get resolved internally by the
             # django admin.
             
-            my_urls += patterns('',
-                                url(r'^item_changelist/$',
-                                    RedirectView.as_view(url='/', permanent=True),
-                                    name='treemenus_menuitem_changelist'),
-                                url(r'^item_add/$',
-                                    RedirectView.as_view(url='/', permanent=True),
-                                    name='treemenus_menuitem_add'),
-                                url(r'^item_history/(?P<pk>[-\w]+)/$',
-                                    self.menu_item_redirect,
-                                    {'action' : 'history'},
-                                    name='treemenus_menuitem_history'),
-                                url(r'^item_delete/(?P<pk>[-\w]+)/$',
-                                    self.menu_item_redirect,
-                                    {'action': 'delete'},
-                                    name='treemenus_menuitem_delete'),
-                                )
+            my_urls += [
+                url(r'^item_changelist/$',
+                    RedirectView.as_view(url='/', permanent=True),
+                    name='treemenus_menuitem_changelist'),
+                # url(r'^item_add/$',
+                #     RedirectView.as_view(url='/', permanent=True),
+                #     name='treemenus_menuitem_add'),
+                # url(r'^item_history/(?P<pk>[-\w]+)/$',
+                #     self.menu_item_redirect,
+                #     {'action' : 'history'},
+                #     name='treemenus_menuitem_history'),
+                # url(r'^item_delete/(?P<pk>[-\w]+)/$',
+                #     self.menu_item_redirect,
+                #     {'action': 'delete'},
+                #     name='treemenus_menuitem_delete'),
+            ]
         return my_urls + urls
 
     def get_object_with_change_permissions(self, request, model, obj_pk):
