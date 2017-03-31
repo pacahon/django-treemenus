@@ -1,11 +1,8 @@
 import re
 
 import django
-try:
-    from django.conf.urls import patterns, url
-    from django.views.generic import RedirectView
-except ImportError:  # Django < 1.4
-    from django.conf.urls.defaults import patterns, url
+from django.conf.urls import url
+from django.views.generic import RedirectView
 from django.contrib import admin
 try:
     from django.contrib.admin.utils import unquote
